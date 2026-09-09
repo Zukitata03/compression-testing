@@ -244,9 +244,29 @@ $("file").onchange = async () => {
   if (!file) return;
   const body = new FormData();
   body.append("file", file);
-  await fetch("/api/assets", { method: "POST", body });
-  $("file").value = "";
-  refresh();
-};
 
+  const box = $("upprogress");
+  $("upname").textContent = file.name;
+  $("upfill").style.width = "0";
+  $("uppct").textContent = "0%";
+  box.hidden = false;
+
+  // XHR instead of fetch: fetch has no upload progress events.
+  const xhr = new XMLHttpRequest();
+  xhr.open("POST", "/api/assets");
+  xhr.upload.onprogress = (e) => {
+    if (!e.lengthComputable) return;
+    const pct = Math.round((e.loaded / e.total) * 100);
+    $("upfill").style.width = pct + "%";
+    $("uppct").textContent = `${pct}%  (${fmtBytes(e.loaded)} / ${fmtBytes(e.total)})`;
+  };
+  xhr.onload = () => {
+    box.hidden = true;
+    $("file").value = "";
+    refresh();
+    if (xhr.status !== 201) alert("Upload failed: " + xhr.status);
+  };
+  xhr.onerror = () => { box.hidden = true; alert("Upload failed: network error"); };
+  xhr.send(body);
+};
 refresh();

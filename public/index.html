@@ -11,7 +11,12 @@
     #list { flex: 1; overflow-y: auto; }
     .row { padding: 10px 12px; border-bottom: 1px solid #eee; cursor: pointer; }
     .row:hover { background: #f6f6f6; }
-    .row.active { background: #e8f0fe; }
+    #drop { margin: 12px; padding: 24px; border: 2px dashed #aaa; text-align: center; cursor: pointer; }
+    #upprogress { margin: 0 12px 12px; font-size: 13px; }
+    #upname { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #555; }
+    #upbar { height: 8px; background: #e5e5e5; border-radius: 4px; margin: 6px 0; overflow: hidden; }
+    #upfill { height: 100%; width: 0; background: #4285f4; transition: width .2s; }
+    #uppct { color: #777; }
     .row .name { font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .row .meta { font-size: 12px; color: #777; }
     .chip { padding: 1px 8px; border-radius: 8px; font-size: 11px; background: #eee; }
@@ -43,6 +48,11 @@
 <body>
   <div id="left">
     <div id="drop">Put your file here to compress<br><button>Upload file</button><input id="file" type="file" hidden></div>
+    <div id="upprogress" hidden>
+      <div id="upname"></div>
+      <div id="upbar"><div id="upfill"></div></div>
+      <div id="uppct"></div>
+    </div>
     <div id="list"></div>
   </div>
   <div id="right">
