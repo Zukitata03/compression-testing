@@ -2,7 +2,7 @@ import { readdir, readFile, writeFile, rm } from "node:fs/promises";
 import { pipeline as streamPipeline } from "node:stream/promises";
 import { createWriteStream, createReadStream } from "node:fs";
 import { GetObjectCommand } from "@aws-sdk/client-s3";
-import { pool } from "./db.js";
+import { pool, migrate } from "./db.js";
 import { s3, BUCKET_ORIGINALS, BUCKET_VARIANTS } from "./s3.js";
 import { findSpec } from "./registry.js";
 import { pipelineFor, uploadFile, variantKey, deletePrefix } from "./storage.js";
@@ -203,4 +203,16 @@ export async function workerLoop(): Promise<void> {
   }
 }
 
-await workerLoop();
+await migrate();
+
+process.on("unhandledRejection", (reason) => {
+  console.error("[worker] unhandled rejection:", reason);
+});
+process.on("uncaughtException", (err) => {
+  console.error("[worker] uncaught exception:", err);
+});
+
+workerLoop().catch((err) => {
+  console.error("[worker] fatal startup error:", err);
+  process.exit(1);
+});

@@ -2,6 +2,12 @@ import { Pool } from "pg";
 
 export const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
+// pg emits 'error' on idle clients with no callback attached; an unhandled
+// 'error' event kills the process. Log and keep running instead.
+pool.on("error", (err) => {
+  console.error("[db] idle client error:", err.message);
+});
+
 const MIGRATIONS = `
 CREATE TABLE IF NOT EXISTS assets (
   id TEXT PRIMARY KEY,
