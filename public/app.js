@@ -3,13 +3,27 @@ let assets = [];
 let activeId = null;
 let activeTier = "original";
 
+let viewerSig = null;
+
 async function refresh() {
   const res = await fetch("/api/assets");
   assets = await res.json();
   renderList();
   if (activeId) {
     const current = assets.find((a) => a.id === activeId);
-    if (current) renderViewer(current);
+    if (current) {
+      // Rebuilding the viewer kills the playing video / reloads the PDF embed.
+      // Only re-render when the manifest actually changed; a 15s poll of an
+      // untouched asset must not touch the DOM the media lives in.
+      const sig = JSON.stringify([current.status, current.progress, current.variants, current.error]);
+      if (sig !== viewerSig) {
+        viewerSig = sig;
+        renderViewer(current);
+      }
+    } else {
+      activeId = null;
+      viewerSig = null;
+    }
   }
   const anyProcessing = assets.some((a) => a.status === "processing" || a.status === "uploaded");
   scheduleNext(anyProcessing ? 3000 : 15000);
@@ -45,7 +59,7 @@ function renderList() {
       : a.status;
     meta.append(chip, " " + fmtBytes(a.originalBytes));
     row.append(name, meta);
-    row.onclick = () => { activeId = a.id; activeTier = "original"; renderList(); renderViewer(a); };
+    row.onclick = () => { activeId = a.id; activeTier = "original"; viewerSig = null; renderList(); renderViewer(a); };
     list.append(row);
   }
 }
@@ -55,6 +69,7 @@ function renderViewer(asset) {
   const viewer = $("viewer");
 
   if (asset.status !== "ready") {
+    viewerSig = JSON.stringify([asset.status, asset.progress, [], asset.error]);
     viewer.textContent = asset.status === "failed"
       ? "Failed: " + (asset.error ?? "unknown error")
       : "Processing" + (asset.progress ? ` (tier ${asset.progress.tier}/${asset.progress.total})` : "…");
@@ -62,6 +77,7 @@ function renderViewer(asset) {
     return;
   }
   const variants = asset.variants ?? [];
+  viewerSig = JSON.stringify([asset.status, asset.progress, asset.variants, asset.error]);
 
   // Documents preview the PDF tier; their original is a binary container.
   if (asset.kind === "document" && activeTier === "original" && variants.some((v) => v.mimeType === "application/pdf")) {
