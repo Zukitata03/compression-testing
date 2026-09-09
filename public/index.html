@@ -1,0 +1,54 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Compression Testing</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; }
+    body { font-family: system-ui, sans-serif; display: flex; height: 100vh; }
+    #left { width: 340px; border-right: 1px solid #ddd; display: flex; flex-direction: column; }
+    #drop { margin: 12px; padding: 24px; border: 2px dashed #aaa; text-align: center; cursor: pointer; }
+    #list { flex: 1; overflow-y: auto; }
+    .row { padding: 10px 12px; border-bottom: 1px solid #eee; cursor: pointer; }
+    .row:hover { background: #f6f6f6; }
+    .row.active { background: #e8f0fe; }
+    .row .name { font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .row .meta { font-size: 12px; color: #777; }
+    .chip { padding: 1px 8px; border-radius: 8px; font-size: 11px; background: #eee; }
+    .chip.ready { background: #cfc; }
+    .chip.processing { background: #ffd; }
+    .chip.failed { background: #fcc; }
+    #right { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+    #viewer { flex: 1; display: flex; align-items: flex-start; justify-content: center; overflow: auto; background: #fafafa; padding: 16px; }
+    #player { position: relative; max-width: 960px; width: fit-content; background: #000; overflow: hidden; }
+    #player video { display: block; max-width: 100%; max-height: 62vh; width: auto; height: auto; }
+    #player.embed-box { width: 100%; height: 100%; }
+    #player embed { width: 100%; height: 100%; display: block; border: 0; }
+    #controls { position: absolute; left: 0; right: 0; bottom: 0; display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: linear-gradient(transparent, rgba(0,0,0,.7)); opacity: 0; transition: opacity .2s; }
+    #player:hover #controls, #controls.open { opacity: 1; }
+    #controls button { background: none; border: none; color: #fff; font-size: 16px; cursor: pointer; padding: 2px 6px; }
+    #seek { flex: 1; height: 4px; background: rgba(255,255,255,.3); cursor: pointer; position: relative; }
+    #seekfill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: #f00; }
+    #time { color: #ddd; font-size: 12px; font-variant-numeric: tabular-nums; }
+    #settings { position: relative; }
+    #qualityMenu { position: absolute; bottom: 36px; right: 0; background: rgba(28,28,28,.95); border-radius: 6px; padding: 6px 0; display: none; min-width: 130px; }
+    #qualityMenu.show { display: block; }
+    #qualityMenu div { padding: 7px 16px; color: #ddd; font-size: 13px; cursor: pointer; white-space: nowrap; }
+    #qualityMenu div:hover { background: rgba(255,255,255,.1); }
+    #viewer pre { width: 100%; height: 100%; overflow: auto; font-size: 13px; background: #fff; padding: 12px; border: 1px solid #eee; white-space: pre-wrap; word-break: break-word; }
+    #qualityMenu div.active::after { content: " ✓"; }
+    #stats { padding: 8px 12px; font-size: 13px; color: #555; border-top: 1px solid #ddd; }
+  </style>
+</head>
+<body>
+  <div id="left">
+    <div id="drop">Put your file here to compress<br><button>Upload file</button><input id="file" type="file" hidden></div>
+    <div id="list"></div>
+  </div>
+  <div id="right">
+    <div id="viewer"><em>Nothing selected</em></div>
+    <div id="stats"></div>
+  <script src="/hls.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
