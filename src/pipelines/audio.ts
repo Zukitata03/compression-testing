@@ -7,6 +7,7 @@ export const audio: Pipeline = async (inputPath, tier, workDir) => {
   await execFile("ffmpeg", [
     "-y", "-i", inputPath,
     "-c:a", "libopus", "-b:a", bitrate,
+    "-threads", "2",
     outPath,
   ]);
   return { outPath, mimeType: "audio/ogg", ext: "ogg" };

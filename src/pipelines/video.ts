@@ -1,6 +1,7 @@
 import { execFile as runTierCmd } from "./util.js";
 import type { Pipeline } from "../types.js";
 import { execFile } from "node:child_process";
+import { cpus } from "node:os";
 import { promisify } from "node:util";
 
 const run = promisify(execFile);
@@ -59,6 +60,9 @@ export const video: Pipeline = async (inputPath, tier, workDir) => {
     "-vf", `scale=-2:'min(${height},ih)'`,
     "-c:v", "libx264", "-crf", "23", "-preset", "fast",
     "-c:a", "aac", "-b:a", "128k",
+    // Default: half the cores, min 2. A shared server must not donate every
+    // core to x264. Override with FFMPEG_THREADS in .env.
+    "-threads", String(process.env.FFMPEG_THREADS ?? Math.max(2, Math.floor(cpus().length / 2))),
     "-f", "hls",
     "-hls_time", "4",
     "-hls_playlist_type", "vod",

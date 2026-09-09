@@ -47,6 +47,10 @@ services:
     command: node dist/worker.js
     env_file: .env
     shm_size: 1gb
+    # Hard ceiling per container. cpus=2 + FFMPEG_THREADS=4 keeps encodes
+    # productive while the rest of the machine serves other services.
+    # Raise/lower via WORKER_CPUS in .env; comment out for unlimited.
+    cpus: "${WORKER_CPUS:-2}"
     volumes:
       - workertmp:/tmp
     depends_on:
