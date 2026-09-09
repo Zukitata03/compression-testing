@@ -6,10 +6,14 @@ Spec and architecture: [SPEC.md](SPEC.md)
 
 ## Run
 
-1. Copy the repo to the server machine.
-2. `cp .env.example .env` (defaults match the compose file; change MinIO keys if exposing beyond localhost)
+1. Clone on the server machine: `git clone https://github.com/Zukitata03/compression-testing.git && cd compression-testing`
+2. `cp .env.example .env`, then edit `.env`:
+   - `LAN_IP` and `TAILSCALE_IP` — the machine's LAN address (`ip -4 addr show`) and its tailscale0 address. The API binds only to these two, never 0.0.0.0, so the rig is unreachable from the internet. Same pattern as the cloudreve-extend stack.
+   - MinIO keys — fine to keep the defaults on a private network.
 3. `docker compose up -d --build --wait` (first build ~5 minutes, ~1.5 GB image with ffmpeg, Ghostscript, LibreOffice)
-4. Open `http://<server-ip>:3000`
+4. Open `http://<LAN_IP>:3000` or `http://<TAILSCALE_IP>:3000`
+
+The stack is fully independent of cloudreve-extend: own postgres (16) and minio, own compose project, own volumes. Port 3000 is the only host port it touches. Coexistence requires nothing beyond both stacks being up.
 
 ## What it does
 

@@ -32,7 +32,10 @@ services:
     command: node dist/api.js
     env_file: .env
     ports:
-      - "3000:3000"
+      # Match the cloudreve-extend pattern: bind only to the LAN and Tailscale
+      # IPs so the API is reachable on the private network, not the internet.
+      - "${LAN_IP:?LAN_IP must be set in .env}:3000:3000"
+      - "${TAILSCALE_IP:?TAILSCALE_IP must be set in .env}:3000:3000"
     depends_on:
       postgres:
         condition: service_healthy
